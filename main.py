@@ -6,15 +6,26 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="config")
 
-class EveryThingBot(commands.Bot):
-    def __init__(self):
-        super().__init__(command_prefix="!")
-
-    async def on_ready(self):
-        await self.change_presence(status=discord.Status.online,
-                                activity=discord.Game("En développement  ..."))
-        print(f"{self.user.display_name} is ready !")
+bot = commands.Bot(command_prefix="!")
 
 
-EveryThing = EveryThingBot()
-EveryThing.run(os.getenv("TOKEN"))
+@bot.command()
+async def load(ctx, extension):
+    bot.load_extension(f'cogs.{extension}')
+
+@bot.command()
+async def unload(ctx, extension):
+    bot.unload_extension(f'cogs.{extension}')
+    
+@bot.command()
+async def reload(ctx, extension):
+    bot.unload_extension(f'cogs.{extension}')
+    bot.load_extension(f'cogs.{extension}')
+
+
+for filename in os.listdir('./cogs'):
+    if filename.endswith('.py'):
+        bot.load_extension(f'cogs.{filename[:-3]}')
+
+
+bot.run(os.getenv("TOKEN"))
